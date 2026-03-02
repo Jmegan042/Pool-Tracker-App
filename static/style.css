@@ -1,3 +1,37 @@
+/* Tab navigation styles for stats.html */
+.tab-nav {
+    margin-bottom: 1em;
+}
+.tab-btn {
+    background: #eee;
+    border: 1px solid #ccc;
+    padding: 0.5em 1.5em;
+    cursor: pointer;
+    margin-right: 0.5em;
+    border-radius: 4px 4px 0 0;
+    font-weight: bold;
+}
+.tab-btn.active {
+    background: #2196f3;
+    color: #fff;
+    border-bottom: 1px solid #2196f3;
+}
+.tab-section {
+    border: 1px solid #ccc;
+    border-radius: 0 4px 4px 4px;
+    padding: 1em;
+    background: #fafbfc;
+}
+/* Win/Loss row coloring */
+/* Stronger specificity for win/loss row coloring */
+.match-win td, tr.match-win td {
+    color: #228B22 !important;
+    font-weight: bold !important;
+}
+.match-loss td, tr.match-loss td {
+    color: #b22222 !important;
+    font-weight: bold !important;
+}
 body {
     font-family: Arial, sans-serif;
     background: #f4f4f4;

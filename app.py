@@ -27,16 +27,23 @@ def stats():
         return redirect(url_for('login'))
     username = session['username']
     user_csv = get_user_csv(username)
+    user_drill_csv = get_user_drill_csv(username)
     matches = []
+    drills = []
     if os.path.exists(user_csv):
         with open(user_csv, 'r', newline='') as f:
             reader = csv.DictReader(f)
             matches = list(reader)
+    if os.path.exists(user_drill_csv):
+        with open(user_drill_csv, 'r', newline='') as f:
+            reader = csv.DictReader(f)
+            drills = list(reader)
     # Prepare data for filters
     opponents = sorted(set(m['opponent'] for m in matches if m.get('opponent')))
     locations = sorted(set(m['location'] for m in matches if m.get('location')))
     game_types = sorted(set(m['game_type'] for m in matches if m.get('game_type')))
-    return render_template('stats.html', matches=matches, opponents=opponents, locations=locations, game_types=game_types)
+    drill_names = sorted(set(d['drill_name'] for d in drills if d.get('drill_name')))
+    return render_template('stats.html', matches=matches, opponents=opponents, locations=locations, game_types=game_types, drills=drills, drill_names=drill_names)
 
 def get_user_csv(username):
     return os.path.join(DATA_DIR, f"{username}_matches.csv")

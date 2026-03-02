@@ -8,30 +8,60 @@
 </head>
 <body>
     <div class="container">
-        <h2>Advanced Win Stats</h2>
+        <h2>Advanced Stats</h2>
         <a href="{{ url_for('dashboard') }}">Back to Dashboard</a>
-        <div>
-            <label>Filter by:
-                <select id="filterType">
-                    <option value="opponent">Opponent</option>
-                    <option value="location">Location</option>
-                    <option value="game_type">Game Type</option>
-                </select>
-            </label>
-            <select id="filterValue"></select>
+        <div class="tab-nav">
+            <button class="tab-btn" id="winStatsTab" onclick="showTab('win')">Win Stats</button>
+            <button class="tab-btn" id="drillStatsTab" onclick="showTab('drill')">Drill Stats</button>
         </div>
-        <canvas id="winPie" width="300" height="300"></canvas>
+        <div id="winStatsSection" class="tab-section">
+            <div>
+                <label>Filter by:
+                    <select id="filterType">
+                        <option value="opponent">Opponent</option>
+                        <option value="location">Location</option>
+                        <option value="game_type">Game Type</option>
+                    </select>
+                </label>
+                <select id="filterValue"></select>
+            </div>
+            <canvas id="winPie" width="300" height="300"></canvas>
+        </div>
+        <div id="drillStatsSection" class="tab-section" style="display:none">
+            <div>
+                <label>Select Drill:
+                    <select id="drillSelect">
+                        {% for drill in drill_names %}
+                        <option value="{{ drill }}">{{ drill }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+            </div>
+            <canvas id="drillLine" width="500" height="300"></canvas>
+        </div>
     </div>
     <script>
         const matches = {{ matches|tojson }};
         const opponents = {{ opponents|tojson }};
         const locations = {{ locations|tojson }};
         const gameTypes = {{ game_types|tojson }};
+        const drills = {{ drills|tojson }};
+        const drillNames = {{ drill_names|tojson }};
 
+        // Tab logic
+        function showTab(tab) {
+            document.getElementById('winStatsSection').style.display = (tab === 'win') ? '' : 'none';
+            document.getElementById('drillStatsSection').style.display = (tab === 'drill') ? '' : 'none';
+            document.getElementById('winStatsTab').classList.toggle('active', tab === 'win');
+            document.getElementById('drillStatsTab').classList.toggle('active', tab === 'drill');
+        }
+        // Default to win stats
+        showTab('win');
+
+        // Win stats chart logic
         const filterTypeSelect = document.getElementById('filterType');
         const filterValueSelect = document.getElementById('filterValue');
-        let chart;
-
+        let winChart;
         function updateFilterValues() {
             let options = [];
             if (filterTypeSelect.value === 'opponent') {
@@ -50,13 +80,12 @@
             });
             if (options.length > 0) {
                 filterValueSelect.value = options[0];
-                updateChart();
+                updateWinChart();
             } else {
-                updateChart();
+                updateWinChart();
             }
         }
-
-        function updateChart() {
+        function updateWinChart() {
             const type = filterTypeSelect.value;
             const value = filterValueSelect.value;
             let win = 0, loss = 0;
@@ -67,8 +96,8 @@
                 }
             });
             const ctx = document.getElementById('winPie').getContext('2d');
-            if (chart) chart.destroy();
-            chart = new Chart(ctx, {
+            if (winChart) winChart.destroy();
+            winChart = new Chart(ctx, {
                 type: 'pie',
                 data: {
                     labels: ['Wins', 'Losses'],
@@ -83,10 +112,55 @@
                 }
             });
         }
-
         filterTypeSelect.addEventListener('change', updateFilterValues);
-        filterValueSelect.addEventListener('change', updateChart);
+        filterValueSelect.addEventListener('change', updateWinChart);
         updateFilterValues();
+
+        // Drill stats chart logic
+        const drillSelect = document.getElementById('drillSelect');
+        let drillChart;
+        function updateDrillChart() {
+            const selectedDrill = drillSelect.value;
+            // Filter and sort by date
+            const filtered = drills.filter(d => d.drill_name === selectedDrill)
+                .map(d => ({
+                    date: d.date,
+                    made: parseInt(d.balls_made, 10),
+                    missed: parseInt(d.balls_missed, 10)
+                }))
+                .sort((a, b) => new Date(a.date) - new Date(b.date));
+            const labels = filtered.map(d => d.date);
+            const ratios = filtered.map(d => d.missed === 0 ? d.made : d.made / (d.made + d.missed));
+            const ctx = document.getElementById('drillLine').getContext('2d');
+            if (drillChart) drillChart.destroy();
+            drillChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Balls Made Ratio',
+                        data: ratios,
+                        borderColor: '#2196f3',
+                        backgroundColor: 'rgba(33,150,243,0.2)',
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 1,
+                            title: { display: true, text: 'Made / (Made + Missed)' }
+                        }
+                    }
+                }
+            });
+        }
+        if (drillSelect) {
+            drillSelect.addEventListener('change', updateDrillChart);
+            updateDrillChart();
+        }
     </script>
 </body>
 </html>

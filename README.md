@@ -1,6 +1,10 @@
 # Pool Performance Tracker
 
-A Flask web application to track pool playing stats with user login. Features:
+A simplified Flask web application to track pool playing stats with user login. 
+
+No "tips", No Ads - no email registration.
+
+Features:
 - Record location and opponent(s)
 - Track wins/losses against specific opponents
 - Track drill performance (balls made vs misses)

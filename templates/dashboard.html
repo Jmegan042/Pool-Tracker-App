@@ -40,6 +40,25 @@
                 <th>Date</th><th>Location</th><th>Opponent</th><th>Game Type</th><th>Partner</th><th>Result</th>
             </tr>
             {% for match in matches %}
+            {% if match['result'] == 'win' %}
+            <tr>
+                <td style="color:#228B22;font-weight:bold;">{{ match['date'] }}</td>
+                <td style="color:#228B22;font-weight:bold;">{{ match['location'] }}</td>
+                <td style="color:#228B22;font-weight:bold;">{{ match['opponent'] }}</td>
+                <td style="color:#228B22;font-weight:bold;">{{ match['game_type'] }}</td>
+                <td style="color:#228B22;font-weight:bold;">{{ match['partner'] }}</td>
+                <td style="color:#228B22;font-weight:bold;">{{ match['result'] }}</td>
+            </tr>
+            {% elif match['result'] == 'loss' %}
+            <tr>
+                <td style="color:#b22222;font-weight:bold;">{{ match['date'] }}</td>
+                <td style="color:#b22222;font-weight:bold;">{{ match['location'] }}</td>
+                <td style="color:#b22222;font-weight:bold;">{{ match['opponent'] }}</td>
+                <td style="color:#b22222;font-weight:bold;">{{ match['game_type'] }}</td>
+                <td style="color:#b22222;font-weight:bold;">{{ match['partner'] }}</td>
+                <td style="color:#b22222;font-weight:bold;">{{ match['result'] }}</td>
+            </tr>
+            {% else %}
             <tr>
                 <td>{{ match['date'] }}</td>
                 <td>{{ match['location'] }}</td>
@@ -48,6 +67,7 @@
                 <td>{{ match['partner'] }}</td>
                 <td>{{ match['result'] }}</td>
             </tr>
+            {% endif %}
             {% endfor %}
         </table>
         {% else %}
