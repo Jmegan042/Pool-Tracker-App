@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add Match - Pool Tracker</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h2>Add Match</h2>
+        <form method="post">
+            <label>Date: <input type="date" name="date" required value="{{ last_match.date }}"></label><br>
+            <label>Location: <input type="text" name="location" required value="{{ last_match.location }}"></label><br>
+            <label>Opponent: <input type="text" name="opponent" required value="{{ last_match.opponent }}"></label><br>
+            <label>Game Type:
+                <select name="game_type">
+                    <option value="singles_8" {% if last_match.game_type == 'singles_8' %}selected{% endif %}>Singles 8 Ball</option>
+                    <option value="singles_9" {% if last_match.game_type == 'singles_9' %}selected{% endif %}>Singles 9 Ball</option>
+                    <option value="doubles_8" {% if last_match.game_type == 'doubles_8' %}selected{% endif %}>Doubles 8 Ball</option>
+                    <option value="scotch_doubles_8" {% if last_match.game_type == 'scotch_doubles_8' %}selected{% endif %}>Scotch Doubles 8 Ball</option>
+                </select>
+            </label><br>
+            <label>Partner: <input type="text" name="partner" value="N/A"></label><br>
+            <label>Result:
+                <select name="result">
+                    <option value="win">Win</option>
+                    <option value="loss">Loss</option>
+                </select>
+            </label><br>
+            <button type="submit">Add Match</button>
+        </form>
+        <a href="{{ url_for('dashboard') }}">Back to Dashboard</a>
+    </div>
+</body>
+</html>

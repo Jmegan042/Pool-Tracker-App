@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Opponent Log - Pool Tracker</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .note { color: #555; font-size: 0.95em; margin-bottom: 10px; }
+        textarea { width: 100%; min-height: 60px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Opponent Log</h2>
+        <form method="post">
+            <label>Opponent Name: <input type="text" name="opponent" required></label><br>
+            <label>Location: <input type="text" name="location" required></label><br>
+            <label>APA Skill Level (1-8):
+                <select name="apa_level" required>
+                    <option value="">Select</option>
+                    {% for i in range(1,9) %}
+                    <option value="{{ i }}">{{ i }}</option>
+                    {% endfor %}
+                </select>
+            </label><br>
+            <div class="note">Higher Number is Better Player</div>
+            <label>Notes on Technique:<br>
+                <textarea name="notes"></textarea>
+            </label><br>
+            <button type="submit">Save Opponent Info</button>
+        </form>
+        <h3>Logged Opponents</h3>
+        {% if opponents %}
+        <table>
+            <tr><th>Name</th><th>Location</th><th>APA Level</th><th>Notes</th></tr>
+            {% for opp in opponents %}
+            <tr>
+                <td>{{ opp['opponent'] }}</td>
+                <td>{{ opp['location'] }}</td>
+                <td>{{ opp['apa_level'] }}</td>
+                <td>{{ opp['notes'] }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% else %}
+        <p>No opponents logged yet.</p>
+        {% endif %}
+        <a href="{{ url_for('dashboard') }}">Back to Dashboard</a>
+    </div>
+</body>
+</html>

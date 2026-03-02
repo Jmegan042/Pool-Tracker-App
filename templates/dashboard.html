@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard - Pool Tracker</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h2>Welcome, {{ session['username'] }}</h2>
+        <a href="{{ url_for('add_match') }}">Add Match</a> | <a href="{{ url_for('add_drill') }}">Add Drill</a> | <a href="{{ url_for('drill_tracker') }}">Drill Tracker</a> | <a href="{{ url_for('opponent_log') }}">Opponent Log</a> | <a href="{{ url_for('stats') }}">Advanced Stats</a> | <a href="{{ url_for('logout') }}">Logout</a>
+        <h3>Win/Loss Overview</h3>
+        <canvas id="winLossChart" width="300" height="300"></canvas>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script>
+        const winCount = {{ win_count }};
+        const lossCount = {{ loss_count }};
+        const ctx = document.getElementById('winLossChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: ['Wins', 'Losses'],
+                datasets: [{
+                    data: [winCount, lossCount],
+                    backgroundColor: ['#4caf50', '#f44336']
+                }]
+            },
+            options: {
+                responsive: false,
+                plugins: {
+                    legend: { position: 'bottom' }
+                }
+            }
+        });
+        </script>
+        <h3>Your Matches</h3>
+        {% if matches %}
+        <table>
+            <tr>
+                <th>Date</th><th>Location</th><th>Opponent</th><th>Game Type</th><th>Partner</th><th>Result</th>
+            </tr>
+            {% for match in matches %}
+            <tr>
+                <td>{{ match['date'] }}</td>
+                <td>{{ match['location'] }}</td>
+                <td>{{ match['opponent'] }}</td>
+                <td>{{ match['game_type'] }}</td>
+                <td>{{ match['partner'] }}</td>
+                <td>{{ match['result'] }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% else %}
+        <p>No matches yet. <a href="{{ url_for('add_match') }}">Add your first match</a>.</p>
+        {% endif %}
+        <h3>Your Drills</h3>
+        {% if drills %}
+        <table>
+            <tr>
+                <th>Date</th><th>Drill Name</th><th>Balls Made</th><th>Balls Missed</th>
+            </tr>
+            {% for drill in drills %}
+            <tr>
+                <td>{{ drill['date'] }}</td>
+                <td>{{ drill['drill_name'] }}</td>
+                <td>{{ drill['balls_made'] }}</td>
+                <td>{{ drill['balls_missed'] }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% else %}
+        <p>No drills yet. <a href="{{ url_for('add_drill') }}">Add your first drill</a>.</p>
+        {% endif %}
+    </div>
+</body>
+</html>

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add Stat - Pool Tracker</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h2>Add Stat</h2>
+        <form method="post">
+            <label>Date: <input type="date" name="date" required></label><br>
+            <label>Location: <input type="text" name="location" required></label><br>
+            <label>Opponents: <input type="text" name="opponents" required></label><br>
+            <label>Result:
+                <select name="result">
+                    <option value="win">Win</option>
+                    <option value="loss">Loss</option>
+                </select>
+            </label><br>
+            <label>Drill: <input type="text" name="drill"></label><br>
+            <label>Balls Made: <input type="number" name="drill_made" min="0" value="0"></label><br>
+            <label>Balls Missed: <input type="number" name="drill_missed" min="0" value="0"></label><br>
+            <label>Game Type:
+                <select name="game_type">
+                    <option value="singles_8">Singles 8 Ball</option>
+                    <option value="singles_9">Singles 9 Ball</option>
+                    <option value="doubles_8">Doubles 8 Ball</option>
+                    <option value="scotch_doubles_8">Scotch Doubles 8 Ball</option>
+                </select>
+            </label><br>
+            <button type="submit">Add Stat</button>
+        </form>
+        <a href="{{ url_for('dashboard') }}">Back to Dashboard</a>
+    </div>
+</body>
+</html>

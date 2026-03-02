@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Advanced Stats - Pool Tracker</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h2>Advanced Win Stats</h2>
+        <a href="{{ url_for('dashboard') }}">Back to Dashboard</a>
+        <div>
+            <label>Filter by:
+                <select id="filterType">
+                    <option value="opponent">Opponent</option>
+                    <option value="location">Location</option>
+                    <option value="game_type">Game Type</option>
+                </select>
+            </label>
+            <select id="filterValue"></select>
+        </div>
+        <canvas id="winPie" width="300" height="300"></canvas>
+    </div>
+    <script>
+        const matches = {{ matches|tojson }};
+        const opponents = {{ opponents|tojson }};
+        const locations = {{ locations|tojson }};
+        const gameTypes = {{ game_types|tojson }};
+
+        const filterTypeSelect = document.getElementById('filterType');
+        const filterValueSelect = document.getElementById('filterValue');
+        let chart;
+
+        function updateFilterValues() {
+            let options = [];
+            if (filterTypeSelect.value === 'opponent') {
+                options = opponents;
+            } else if (filterTypeSelect.value === 'location') {
+                options = locations;
+            } else if (filterTypeSelect.value === 'game_type') {
+                options = gameTypes;
+            }
+            filterValueSelect.innerHTML = '';
+            options.forEach(val => {
+                const opt = document.createElement('option');
+                opt.value = val;
+                opt.textContent = val;
+                filterValueSelect.appendChild(opt);
+            });
+            if (options.length > 0) {
+                filterValueSelect.value = options[0];
+                updateChart();
+            } else {
+                updateChart();
+            }
+        }
+
+        function updateChart() {
+            const type = filterTypeSelect.value;
+            const value = filterValueSelect.value;
+            let win = 0, loss = 0;
+            matches.forEach(m => {
+                if (m[type] === value) {
+                    if (m.result === 'win') win++;
+                    else if (m.result === 'loss') loss++;
+                }
+            });
+            const ctx = document.getElementById('winPie').getContext('2d');
+            if (chart) chart.destroy();
+            chart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Wins', 'Losses'],
+                    datasets: [{
+                        data: [win, loss],
+                        backgroundColor: ['#4caf50', '#f44336']
+                    }]
+                },
+                options: {
+                    responsive: false,
+                    plugins: { legend: { position: 'bottom' } }
+                }
+            });
+        }
+
+        filterTypeSelect.addEventListener('change', updateFilterValues);
+        filterValueSelect.addEventListener('change', updateChart);
+        updateFilterValues();
+    </script>
+</body>
+</html>

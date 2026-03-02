@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Drill Tracker - Pool Tracker</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .score-btns { margin: 20px 0; }
+        .score-btns button { margin: 0 10px; font-size: 1.2em; }
+        .score-display { font-size: 1.3em; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Drill Tracker</h2>
+        <form id="drillForm" method="post" style="display: block;">
+            <label>Drill Name: <input type="text" name="drill_name" id="drillNameInput" required></label>
+            <button type="button" id="startBtn">Start</button>
+        </form>
+        <div id="trackerSection" style="display: none;">
+            <div class="score-display">
+                Balls Made: <span id="madeCount">0</span> &nbsp; | &nbsp; Balls Missed: <span id="missedCount">0</span>
+            </div>
+            <div class="score-btns">
+                <button id="madeBtn">Made Ball</button>
+                <button id="missedBtn">Missed Ball</button>
+            </div>
+            <form id="finishForm" method="post" style="margin-top: 20px;">
+                <input type="hidden" name="drill_name" id="hiddenDrillName">
+                <input type="hidden" name="balls_made" id="hiddenBallsMade">
+                <input type="hidden" name="balls_missed" id="hiddenBallsMissed">
+                <input type="hidden" name="date" id="hiddenDate">
+                <button type="submit">End Drill & Save</button>
+            </form>
+        </div>
+        <a href="{{ url_for('dashboard') }}">Back to Dashboard</a>
+    </div>
+    <script>
+        const startBtn = document.getElementById('startBtn');
+        const drillForm = document.getElementById('drillForm');
+        const trackerSection = document.getElementById('trackerSection');
+        const madeBtn = document.getElementById('madeBtn');
+        const missedBtn = document.getElementById('missedBtn');
+        const madeCount = document.getElementById('madeCount');
+        const missedCount = document.getElementById('missedCount');
+        const finishForm = document.getElementById('finishForm');
+        const hiddenDrillName = document.getElementById('hiddenDrillName');
+        const hiddenBallsMade = document.getElementById('hiddenBallsMade');
+        const hiddenBallsMissed = document.getElementById('hiddenBallsMissed');
+        const hiddenDate = document.getElementById('hiddenDate');
+        let made = 0, missed = 0;
+        startBtn.onclick = function() {
+            const drillName = document.getElementById('drillNameInput').value.trim();
+            if (!drillName) return;
+            drillForm.style.display = 'none';
+            trackerSection.style.display = 'block';
+            made = 0; missed = 0;
+            madeCount.textContent = made;
+            missedCount.textContent = missed;
+            hiddenDrillName.value = drillName;
+            // Do not set date here
+        };
+        madeBtn.onclick = function(e) {
+            e.preventDefault();
+            made++;
+            madeCount.textContent = made;
+        };
+        missedBtn.onclick = function(e) {
+            e.preventDefault();
+            missed++;
+            missedCount.textContent = missed;
+        };
+        finishForm.onsubmit = function() {
+            hiddenBallsMade.value = made;
+            hiddenBallsMissed.value = missed;
+            hiddenDate.value = new Date().toISOString().slice(0,10);
+        };
+    </script>
+</body>
+</html>
