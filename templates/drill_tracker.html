@@ -14,7 +14,14 @@
     <div class="container">
         <h2>Drill Tracker</h2>
         <form id="drillForm" method="post" style="display: block;">
-            <label>Drill Name: <input type="text" name="drill_name" id="drillNameInput" required></label>
+            <label>Drill Name:
+                <input list="drillNames" name="drill_name" id="drillNameInput" required autocomplete="off">
+                <datalist id="drillNames">
+                    {% for name in drill_names %}
+                        <option value="{{ name }}">{{ name }}</option>
+                    {% endfor %}
+                </datalist>
+            </label>
             <button type="button" id="startBtn">Start</button>
         </form>
         <div id="trackerSection" style="display: none;">

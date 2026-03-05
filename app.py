@@ -14,12 +14,6 @@ DATA_DIR = 'user_data'
 # Ensure user data directory exists
 os.makedirs(DATA_DIR, exist_ok=True)
 
-def get_user_csv(username):
-    return os.path.join(DATA_DIR, f"{username}_matches.csv")
-
-def get_user_drill_csv(username):
-    return os.path.join(DATA_DIR, f"{username}_drills.csv")
-
 # Route for advanced stats page
 @app.route('/stats', methods=['GET'])
 def stats():
@@ -163,6 +157,7 @@ def add_match():
                     'location': last.get('location', ''),
                     'game_type': last.get('game_type', '')
                 }
+
     if request.method == 'POST':
         fieldnames = ['date', 'location', 'opponent', 'game_type', 'partner', 'result']
         new_entry = {
@@ -182,6 +177,14 @@ def add_match():
         flash('Match added!')
         return redirect(url_for('dashboard'))
     return render_template('add_match.html', last_match=last_match)
+
+# Route for nine ball APA tracker
+@app.route('/nine_ball_tracker')
+def nine_ball_tracker():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    return render_template('nine_ball_tracker.html')
+
 
 # Add drill route
 @app.route('/add_drill', methods=['GET', 'POST'])
@@ -212,9 +215,31 @@ def add_drill():
 def drill_tracker():
     if 'username' not in session:
         return redirect(url_for('login'))
+    username = session['username']
+    user_drill_csv = get_user_drill_csv(username)
+    drill_names_dict = {}
+    # Add user drills
+    if os.path.exists(user_drill_csv):
+        with open(user_drill_csv, 'r', newline='') as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                name = row.get('drill_name', '').strip()
+                if name:
+                    key = name.lower()
+                    if key not in drill_names_dict:
+                        drill_names_dict[key] = name
+    # Add global drills
+    global_drills_path = os.path.join(os.path.dirname(__file__), 'global_drills.txt')
+    if os.path.exists(global_drills_path):
+        with open(global_drills_path, 'r') as f:
+            for line in f:
+                name = line.strip()
+                if name:
+                    key = name.lower()
+                    if key not in drill_names_dict:
+                        drill_names_dict[key] = name
+    drill_names = sorted(drill_names_dict.values(), key=lambda x: x.lower())
     if request.method == 'POST':
-        username = session['username']
-        user_drill_csv = get_user_drill_csv(username)
         fieldnames = ['date', 'drill_name', 'balls_made', 'balls_missed']
         new_entry = {
             'date': request.form['date'],
@@ -230,7 +255,7 @@ def drill_tracker():
             writer.writerow(new_entry)
         flash('Drill result saved!')
         return redirect(url_for('dashboard'))
-    return render_template('drill_tracker.html')
+    return render_template('drill_tracker.html', drill_names=drill_names)
 
 # Opponent log route
 @app.route('/opponent_log', methods=['GET', 'POST'])

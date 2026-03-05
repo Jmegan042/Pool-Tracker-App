@@ -1,0 +1,307 @@
+{% extends "index.html" %}
+{% block content %}
+<h2>Nine Ball APA Tracker</h2>
+<form id="player-setup" style="max-width:400px;margin:auto;margin-bottom:15px;text-align:center;">
+  <div style="display:flex;justify-content:space-between;gap:10px;">
+    <div>
+      <label>Player 1 Name<br><input type="text" id="name1" required value="Player 1"></label><br>
+      <label>Skill Level<br><input type="number" id="skill1" min="1" max="9" required value="4"></label>
+    </div>
+    <div>
+      <label>Player 2 Name<br><input type="text" id="name2" required value="Player 2"></label><br>
+      <label>Skill Level<br><input type="number" id="skill2" min="1" max="9" required value="4"></label>
+    </div>
+  </div>
+  <button type="submit" style="margin-top:10px;width:100%;">Start Game</button>
+</form>
+<div id="game-container" style="display:none;text-align:center;">
+  <div id="players">
+    <div id="player1-box" class="player-box active">
+      <span id="player1">Player 1</span>
+      <div id="score1-label">Player 1 Score: <span id="score1">0</span> / <span id="goal1">0</span></div>
+    </div>
+    <button id="switch-turn">Switch Turn</button>
+    <div id="player2-box" class="player-box">
+      <span id="player2">Player 2</span>
+      <div id="score2-label">Player 2 Score: <span id="score2">0</span> / <span id="goal2">0</span></div>
+    </div>
+  </div>
+  <div id="balls" style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+    <div class="ball-row">
+      {% for i in range(1, 5) %}
+        <button class="ball" data-ball="{{ i }}">{{ i }}</button>
+      {% endfor %}
+    </div>
+    <div class="ball-row">
+      {% for i in range(5, 10) %}
+        <button class="ball" data-ball="{{ i }}">{{ i }}</button>
+      {% endfor %}
+    </div>
+  </div>
+  <div id="scores">
+    <span id="score1-label">Player 1 Score: <span id="score1">0</span> / <span id="goal1">0</span></span>
+    <span id="score2-label">Player 2 Score: <span id="score2">0</span> / <span id="goal2">0</span></span>
+  </div>
+  <div id="inning-tracker" style="margin-bottom:10px;text-align:center;">
+    Inning: <span id="inning">0</span>
+  </div>
+  <div style="margin-bottom:10px;">
+    <button id="end-early-btn" type="button">End Match Early</button>
+  </div>
+  <div id="rerack-container" style="text-align:center; margin-bottom:10px;">
+    <button id="rerack-btn" style="display:none;">Re-rack</button>
+  </div>
+  <div id="history" style="text-align:center;">
+    <h4>Ball History</h4>
+    <ul id="history-list" style="display:inline-block;text-align:left;"></ul>
+  </div>
+</div>
+<div id="gameover-container" style="display:none;max-width:400px;margin:auto;margin-top:20px;text-align:center;">
+  <h2 id="gameover-message">Game Over!</h2>
+  <form id="submit-stats-form" method="POST" action="/add_match">
+    <h4>Submit Game to Tracker</h4>
+    <div style="text-align:left;">
+      <label>Date: <input type="date" name="date" id="gameover-date"></label><br>
+      <label>Location: <input type="text" name="location"></label><br>
+      <label>Opponent: <input type="text" name="opponent" id="gameover-opponent"></label><br>
+      <label>Game Type: <input type="text" name="game_type" value="Nine Ball"></label><br>
+      <label>Partner: <input type="text" name="partner"></label><br>
+      <label>Result:
+        <select name="result" id="gameover-result">
+          <option value="win">Win</option>
+          <option value="loss">Loss</option>
+        </select>
+      </label><br>
+    </div>
+    <button type="submit">Add to Main Tracker</button>
+  </form>
+</div>
+</div>
+<style>
+#game-container { max-width: 400px; margin: auto; }
+#players { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 10px; }
+.player-box {
+  border: 3px solid #bbb;
+  border-radius: 10px;
+  padding: 10px 18px;
+  min-width: 140px;
+  text-align: center;
+  background: #f7f7f7;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.player-box.active {
+  border-color: #2ecc40;
+  box-shadow: 0 0 10px #2ecc40aa;
+  background: #eaffea;
+}
+#balls { margin-bottom: 10px; }
+.ball-row { display: flex; gap: 12px; justify-content: center; }
+.ball {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  font-size: 32px;
+  border: 2px solid #333;
+  color: #fff;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0;
+  box-sizing: border-box;
+  margin: 0;
+}
+.ball.pocketed { background: #ccc !important; color: #fff; }
+
+/* Ball color classes */
+.ball.ball-1 { background: #ffe100; color: #333; }   /* yellow */
+.ball.ball-2 { background: #0090ff; }                /* blue */
+.ball.ball-3 { background: #ff4b00; }                /* red */
+.ball.ball-4 { background: #a259c6; }                /* purple */
+.ball.ball-5 { background: #ffb300; color: #333; }   /* orange */
+.ball.ball-6 { background: #009b6b; }                /* green */
+.ball.ball-7 { background: #b94a3a; }                /* maroon */
+.ball.ball-8 { background: #222; }                   /* black */
+.ball.ball-9 { background: #ffe100; border: 2px solid #0090ff; color: #333; } /* yellow/blue stripe */
+#scores { display: flex; justify-content: space-between; margin-bottom: 10px; }
+#history { margin-top: 10px; }
+</style>
+<script>
+// APA 9-ball race chart (skill: points needed)
+const apaRace = {1:14, 2:19, 3:25, 4:31, 5:38, 6:46, 7:55, 8:65, 9:75};
+let playerNames = ["Player 1", "Player 2"];
+let playerSkills = [4, 4];
+let playerGoals = [31, 31];
+
+let currentPlayer = 1;
+let scores = [0, 0];
+let pocketed = Array(10).fill(false);
+let inning = 0;
+let turnSwitches = 0;
+const rerackBtn = document.getElementById('rerack-btn');
+
+
+function updateScores() {
+  document.getElementById('score1').textContent = scores[0];
+  document.getElementById('score2').textContent = scores[1];
+  document.getElementById('goal1').textContent = playerGoals[0];
+  document.getElementById('goal2').textContent = playerGoals[1];
+  document.getElementById('score1-label').innerHTML = `${playerNames[0]} (SL${playerSkills[0]}) Score: <span id="score1">${scores[0]}</span> / <span id="goal1">${playerGoals[0]}</span>`;
+  document.getElementById('score2-label').innerHTML = `${playerNames[1]} (SL${playerSkills[1]}) Score: <span id="score2">${scores[1]}</span> / <span id="goal2">${playerGoals[1]}</span>`;
+  document.getElementById('inning').textContent = inning;
+}
+
+function switchTurn() {
+  currentPlayer = 3 - currentPlayer;
+  document.getElementById('player1-box').classList.toggle('active', currentPlayer === 1);
+  document.getElementById('player2-box').classList.toggle('active', currentPlayer === 2);
+  turnSwitches++;
+  if (turnSwitches % 2 === 0) {
+    inning++;
+    updateScores();
+  }
+}
+// Set initial highlight
+document.getElementById('player1-box').classList.add('active');
+document.getElementById('switch-turn').onclick = switchTurn;
+
+
+// Assign color classes to ball buttons
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.ball').forEach(btn => {
+    const ballNum = btn.dataset.ball;
+    btn.classList.add('ball-' + ballNum);
+  });
+});
+
+const ballButtons = Array.from(document.querySelectorAll('.ball'));
+let gameOver = false;
+function showGameOver(winnerIdx) {
+  gameOver = true;
+  document.getElementById('game-container').style.display = 'none';
+  document.getElementById('gameover-container').style.display = '';
+  document.getElementById('gameover-message').textContent = `Game Over! ${playerNames[winnerIdx]} wins!`;
+  // Pre-fill result in form
+  document.getElementById('gameover-opponent').value = playerNames[1-winnerIdx];
+  document.getElementById('gameover-result').value = winnerIdx === 0 ? 'win' : 'loss';
+  // Set today's date as default
+  const today = new Date();
+  const yyyy = today.getFullYear();
+  const mm = String(today.getMonth() + 1).padStart(2, '0');
+  const dd = String(today.getDate()).padStart(2, '0');
+  document.getElementById('gameover-date').value = `${yyyy}-${mm}-${dd}`;
+}
+
+function checkGameOver() {
+  for (let i = 0; i < 2; i++) {
+    if (scores[i] >= playerGoals[i]) {
+      showGameOver(i);
+      break;
+    }
+  }
+}
+
+document.getElementById('end-early-btn').onclick = function() {
+  if (gameOver) return;
+  let winnerIdx = 0;
+  if (scores[1] > scores[0]) winnerIdx = 1;
+  showGameOver(winnerIdx);
+  ballButtons.forEach(b => b.disabled = true);
+  rerackBtn.style.display = 'none';
+};
+
+// Track which player pocketed each ball for undo
+let ballHistory = [];
+ballButtons.forEach(btn => {
+  btn.onclick = function() {
+    if (gameOver) return;
+    const ball = parseInt(this.dataset.ball);
+    if (!pocketed[ball]) {
+      // Pocket the ball
+      pocketed[ball] = true;
+      this.classList.add('pocketed');
+      let pts = (ball === 9) ? 2 : 1;
+      scores[currentPlayer-1] += pts;
+      updateScores();
+      const hist = document.getElementById('history-list');
+      let li = document.createElement('li');
+      li.textContent = `${playerNames[currentPlayer-1]} pocketed ball ${ball} (+${pts})`;
+      hist.appendChild(li);
+      // Save to ballHistory for undo
+      ballHistory.push({ball, player: currentPlayer-1, pts, li});
+      checkGameOver();
+      if (gameOver) {
+        ballButtons.forEach(b => b.disabled = true);
+        rerackBtn.style.display = 'none';
+        return;
+      }
+      if (ball === 9) {
+        // Show rerack, but do not disable balls (so undo is possible)
+        rerackBtn.style.display = '';
+      }
+    } else {
+      // Undo pocketed ball
+      // Find the last history entry for this ball
+      for (let i = ballHistory.length - 1; i >= 0; i--) {
+        if (ballHistory[i].ball === ball) {
+          // Remove points from the player
+          scores[ballHistory[i].player] -= ballHistory[i].pts;
+          updateScores();
+          // Remove the log entry
+          if (ballHistory[i].li && ballHistory[i].li.parentNode) {
+            ballHistory[i].li.parentNode.removeChild(ballHistory[i].li);
+          }
+          // Remove from ballHistory
+          ballHistory.splice(i, 1);
+          break;
+        }
+      }
+      pocketed[ball] = false;
+      this.classList.remove('pocketed');
+      // Do not disable the button, just update appearance
+      // If rack was locked, re-enable all balls if needed
+      if (ball === 9) {
+        rerackBtn.style.display = 'none';
+      }
+    }
+  };
+});
+
+
+rerackBtn.onclick = function() {
+  pocketed = Array(10).fill(false);
+  ballButtons.forEach(btn => {
+    btn.classList.remove('pocketed');
+    btn.disabled = false;
+  });
+  rerackBtn.style.display = 'none';
+  const hist = document.getElementById('history-list');
+  let li = document.createElement('li');
+  li.textContent = '--- New Rack ---';
+  li.style.fontStyle = 'italic';
+  hist.appendChild(li);
+  // Optionally reset inning/turnSwitches if you want per-rack tracking
+  // inning = 0; turnSwitches = 0; updateScores();
+};
+
+// Player setup form logic
+document.getElementById('player-setup').onsubmit = function(e) {
+  e.preventDefault();
+  playerNames[0] = document.getElementById('name1').value || 'Player 1';
+  playerNames[1] = document.getElementById('name2').value || 'Player 2';
+  playerSkills[0] = parseInt(document.getElementById('skill1').value) || 4;
+  playerSkills[1] = parseInt(document.getElementById('skill2').value) || 4;
+  playerGoals[0] = apaRace[playerSkills[0]] || 31;
+  playerGoals[1] = apaRace[playerSkills[1]] || 31;
+  document.getElementById('player1').textContent = playerNames[0];
+  document.getElementById('player2').textContent = playerNames[1];
+  updateScores();
+  document.getElementById('game-container').style.display = '';
+  document.getElementById('player-setup').style.display = 'none';
+};
+
+// Initialize with default values
+updateScores();
+</script>
+{% endblock %}

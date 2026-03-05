@@ -8,7 +8,17 @@
 <body>
     <div class="container">
         <h1>Pool Performance Tracker</h1>
-        <a href="{{ url_for('login') }}">Login</a> | <a href="{{ url_for('register') }}">Register</a>
+        <nav>
+            <a href="{{ url_for('dashboard') }}">Dashboard</a> |
+            <a href="{{ url_for('add_match') }}">Add Match</a> |
+            <a href="{{ url_for('add_drill') }}">Add Drill</a> |
+            <a href="{{ url_for('drill_tracker') }}">Drill Tracker</a> |
+            <a href="{{ url_for('opponent_log') }}">Opponent Log</a> |
+            <a href="{{ url_for('stats') }}">Advanced Stats</a> |
+            <a href="/nine_ball_tracker">Nine Ball Tracker</a> |
+            <a href="{{ url_for('logout') }}">Logout</a>
+        </nav>
     </div>
+    {% block content %}{% endblock %}
 </body>
 </html>

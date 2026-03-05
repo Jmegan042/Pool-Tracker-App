@@ -6,11 +6,21 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <div class="container">
+    <div class="container" style="text-align:center;">
         <h2>Welcome, {{ session['username'] }}</h2>
-        <a href="{{ url_for('add_match') }}">Add Match</a> | <a href="{{ url_for('add_drill') }}">Add Drill</a> | <a href="{{ url_for('drill_tracker') }}">Drill Tracker</a> | <a href="{{ url_for('opponent_log') }}">Opponent Log</a> | <a href="{{ url_for('stats') }}">Advanced Stats</a> | <a href="{{ url_for('logout') }}">Logout</a>
+        <div style="margin-bottom:12px;">
+            <a href="{{ url_for('add_match') }}">Add Match</a> |
+            <a href="{{ url_for('add_drill') }}">Add Drill</a> |
+            <a href="{{ url_for('drill_tracker') }}">Drill Tracker</a> |
+            <a href="{{ url_for('opponent_log') }}">Opponent Log</a> |
+            <a href="{{ url_for('stats') }}">Advanced Stats</a> |
+            <a href="/nine_ball_tracker">Nine Ball Tracker</a> |
+            <a href="{{ url_for('logout') }}">Logout</a>
+        </div>
         <h3>Win/Loss Overview</h3>
-        <canvas id="winLossChart" width="300" height="300"></canvas>
+        <div style="display:flex;justify-content:center;">
+            <canvas id="winLossChart" width="300" height="300"></canvas>
+        </div>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script>
         const winCount = {{ win_count }};
@@ -35,7 +45,8 @@
         </script>
         <h3>Your Matches</h3>
         {% if matches %}
-        <table>
+        <div style="overflow-x:auto;display:flex;justify-content:center;">
+        <table style="margin:auto;min-width:320px;max-width:98vw;">
             <tr>
                 <th>Date</th><th>Location</th><th>Opponent</th><th>Game Type</th><th>Partner</th><th>Result</th>
             </tr>
@@ -70,12 +81,14 @@
             {% endif %}
             {% endfor %}
         </table>
+        </div>
         {% else %}
         <p>No matches yet. <a href="{{ url_for('add_match') }}">Add your first match</a>.</p>
         {% endif %}
         <h3>Your Drills</h3>
         {% if drills %}
-        <table>
+        <div style="overflow-x:auto;display:flex;justify-content:center;">
+        <table style="margin:auto;min-width:320px;max-width:98vw;">
             <tr>
                 <th>Date</th><th>Drill Name</th><th>Balls Made</th><th>Balls Missed</th>
             </tr>
@@ -88,6 +101,7 @@
             </tr>
             {% endfor %}
         </table>
+        </div>
         {% else %}
         <p>No drills yet. <a href="{{ url_for('add_drill') }}">Add your first drill</a>.</p>
         {% endif %}
