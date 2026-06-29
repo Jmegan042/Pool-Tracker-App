@@ -162,10 +162,17 @@ function updateScores() {
   document.getElementById('score2').textContent = gamesWon[1];
   document.getElementById('goal1').textContent = playerGoals[0];
   document.getElementById('goal2').textContent = playerGoals[1];
-  document.getElementById('score1-label').innerHTML =
-    `${playerNames[0]} (SL${playerSkills[0]}) Games Won: <span id="score1">${gamesWon[0]}</span> / <span id="goal1">${playerGoals[0]}</span>`;
-  document.getElementById('score2-label').innerHTML =
-    `${playerNames[1]} (SL${playerSkills[1]}) Games Won: <span id="score2">${gamesWon[1]}</span> / <span id="goal2">${playerGoals[1]}</span>`;
+  const s1label = document.getElementById('score1-label');
+  s1label.textContent = `${playerNames[0]} (SL${playerSkills[0]}) Games Won: `;
+  const s1 = document.createElement('span'); s1.id = 'score1'; s1.textContent = gamesWon[0];
+  const g1 = document.createElement('span'); g1.id = 'goal1'; g1.textContent = playerGoals[0];
+  s1label.append(s1, ' / ', g1);
+
+  const s2label = document.getElementById('score2-label');
+  s2label.textContent = `${playerNames[1]} (SL${playerSkills[1]}) Games Won: `;
+  const s2 = document.createElement('span'); s2.id = 'score2'; s2.textContent = gamesWon[1];
+  const g2 = document.createElement('span'); g2.id = 'goal2'; g2.textContent = playerGoals[1];
+  s2label.append(s2, ' / ', g2);
   document.getElementById('game-num').textContent = gameNum;
   document.getElementById('inning').textContent = inning;
   document.getElementById('safeties').textContent = safeties;
