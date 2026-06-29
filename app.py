@@ -6,7 +6,7 @@ import csv
 import os
 from werkzeug.security import generate_password_hash, check_password_hash
 app = Flask(__name__)
-app.secret_key = 'replace_this_with_a_secret_key'
+app.secret_key = os.environ.get('SECRET_KEY', 'replace_this_with_a_secret_key')
 
 USERS_FILE = 'users.csv'
 DATA_DIR = 'user_data'
@@ -184,6 +184,13 @@ def nine_ball_tracker():
     if 'username' not in session:
         return redirect(url_for('login'))
     return render_template('nine_ball_tracker.html')
+
+# Route for eight ball APA tracker
+@app.route('/eight_ball_tracker')
+def eight_ball_tracker():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    return render_template('eight_ball_tracker.html')
 
 
 # Add drill route
