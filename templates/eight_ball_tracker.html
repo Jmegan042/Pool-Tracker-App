@@ -220,18 +220,18 @@ document.getElementById('record-game-btn').onclick = function() {
   const li = document.createElement('li');
   li.textContent = `Game ${gameNum}: ${playerNames[winner]} def. ${playerNames[loser]} — ${reason} (${inning} inn, ${safeties} saf)`;
   document.getElementById('history-list').appendChild(li);
-  gameLog.push({ winner, loser, reason, innings: inning, safeties, li });
+  gameLog.push({ winner, loser, reason, innings: inning, safeties, li, breaker });
   document.getElementById('undo-game-btn').style.display = '';
 
   updateScores();
   if (checkMatchOver()) return;
 
-  // Start next game: alternate the break, reset per-game counters.
+  // Start next game: loser breaks next; reset per-game counters.
   gameNum++;
   inning = 0;
   safeties = 0;
   turnSwitches = 0;
-  breaker = 1 - breaker;
+  breaker = loser;
   currentPlayer = breaker + 1;
   setActiveBox();
   updateBreakIndicator();
@@ -248,7 +248,7 @@ document.getElementById('undo-game-btn').onclick = function() {
   inning = last.innings;
   safeties = last.safeties;
   turnSwitches = 0;
-  breaker = 1 - breaker;
+  breaker = last.breaker;
   currentPlayer = breaker + 1;
   setActiveBox();
   updateBreakIndicator();
