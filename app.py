@@ -4,12 +4,15 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 import csv
 import os
+import re
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'replace_this_with_a_secret_key')
 
 USERS_FILE = 'users.csv'
 DATA_DIR = 'user_data'
+USERNAME_RE = re.compile(r'^[A-Za-z0-9_-]{1,32}$')
 
 # Ensure user data directory exists
 os.makedirs(DATA_DIR, exist_ok=True)
@@ -40,10 +43,13 @@ def stats():
     return render_template('stats.html', matches=matches, opponents=opponents, locations=locations, game_types=game_types, drills=drills, drill_names=drill_names)
 
 def get_user_csv(username):
-    return os.path.join(DATA_DIR, f"{username}_matches.csv")
+    return os.path.join(DATA_DIR, f"{secure_filename(username)}_matches.csv")
 
 def get_user_drill_csv(username):
-    return os.path.join(DATA_DIR, f"{username}_drills.csv")
+    return os.path.join(DATA_DIR, f"{secure_filename(username)}_drills.csv")
+
+def get_user_opponents_csv(username):
+    return os.path.join(DATA_DIR, f"{secure_filename(username)}_opponents.csv")
 
 def user_exists(username):
     if not os.path.exists(USERS_FILE):
@@ -85,6 +91,9 @@ def register():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
+        if not USERNAME_RE.match(username):
+            flash('Username must be 1-32 characters: letters, numbers, hyphens, underscores only.')
+            return redirect(url_for('register'))
         if user_exists(username):
             flash('Username already exists.')
             return redirect(url_for('register'))
@@ -270,7 +279,7 @@ def opponent_log():
     if 'username' not in session:
         return redirect(url_for('login'))
     username = session['username']
-    opp_csv = os.path.join(DATA_DIR, f"{username}_opponents.csv")
+    opp_csv = get_user_opponents_csv(username)
     fieldnames = ['opponent', 'apa_level', 'location', 'notes']
     if request.method == 'POST':
         new_entry = {
@@ -295,4 +304,7 @@ def opponent_log():
     return render_template('opponent_log.html', opponents=opponents)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', debug=True)
+    app.run(
+        host=os.environ.get('FLASK_RUN_HOST', '127.0.0.1'),
+        debug=os.environ.get('FLASK_DEBUG', '0') == '1'
+    )
